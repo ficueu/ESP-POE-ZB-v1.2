@@ -35,3 +35,5 @@ modbus:
   flow_control_pin: 16
   id: modbus1
 ```
+
+![alt text](https://github.com/ficueu/ESP-POE-ZB-v1.2/blob/main/images/board1.2.png)
