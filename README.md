@@ -15,6 +15,10 @@ Features:
 * BUS (input/POE) voltage monitoring,
 * LEDs: power (green) and status (amber).
 
+
+###DO NOT POWER MODULE WITHOUT ANTENNAS
+
+
 Pinout:
 ```
 i2c:
