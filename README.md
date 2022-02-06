@@ -36,4 +36,11 @@ modbus:
   id: modbus1
 ```
 
+ZigBee2MQTT config:
+
+```
+serial:
+  port: tcp://YOUR-IP:1234
+```
+
 ![alt text](https://github.com/ficueu/ESP-POE-ZB-v1.2/blob/main/images/board1.2.png)
