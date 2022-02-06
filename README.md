@@ -16,7 +16,7 @@ Features:
 * LEDs: power (green) and status (amber).
 
 
-### DO NOT POWER MODULE WITHOUT ANTENNAS
+### DO NOT POWER ON MODULE WITHOUT ANTENNAS
 
 
 Pinout:
