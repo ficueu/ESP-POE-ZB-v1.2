@@ -1,0 +1,109 @@
+#based on https://github.com/mercenaruss/zigstar_gateways/blob/main/files/ESP-HOME/zigstar-gw-lan.yaml
+
+esphome:
+  name: esp-poe-test1
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "130851332f88ab4b6940e72f056f7e50"
+
+status_led:
+  pin:
+    number: 2
+    inverted: true
+    
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 1
+  power_pin: GPIO12
+  
+i2c:
+  sda: 14
+  scl: 13
+  id: i2cbus
+
+external_components:
+  - source: github://oxan/esphome-stream-server
+  
+switch:
+  - platform: restart
+    name: "Gateway Restart"
+
+  - platform: gpio
+    pin: 32
+    id: zRST_gpio
+    inverted: yes
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: "Zigbee RST"
+    icon: mdi:toggle-switch
+    id: zRST
+    turn_on_action:
+      - switch.turn_on: zRST_gpio
+      - delay: 15ms
+      - switch.turn_off: zRST_gpio
+      
+  - platform: gpio
+    pin: 33
+    name: "Zigbee BSL"
+    icon: mdi:toggle-switch
+    id: zBSL
+    inverted: yes
+    restore_mode: ALWAYS_OFF
+    internal: true
+    
+  - platform: template
+    name: "Firmware Update"
+    icon: mdi:cellphone-arrow-down
+    turn_on_action:
+      - script.execute: fw_update_mode
+    turn_off_action:
+      - switch.toggle: zRST
+
+#Update CC2652P/CC2652RB Firmware
+script:
+  - id: fw_update_mode
+    then:
+      - switch.turn_on: zBSL
+      - delay: 1s
+      - switch.turn_on: zRST_gpio
+      - delay: 1s
+      - switch.turn_off: zRST_gpio
+      - logger.log: "Delaying ~10 seconds for TI chip to be ready"
+      - delay: 10s
+      - switch.turn_off: zBSL
+      - logger.log: "Update with cc2538-bsl tool now!"
+      - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:1234 -evw firmware.hex"
+
+#UART Settings
+uart:
+  id: uart_bus
+  rx_pin: GPIO4
+  tx_pin: GPIO5
+  baud_rate: 115200
+
+#Serial Bridge Settings,uncomment #port to change default 6638 TCP port
+stream_server:
+  uart_id: uart_bus
+  port: 1234
+
+sensor:
+  - platform: adc
+    filters:
+      - multiply: 48.4
+    pin: GPIO35
+    name: "Bus Voltage"
+    update_interval: 60s
