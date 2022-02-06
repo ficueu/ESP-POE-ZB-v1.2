@@ -12,7 +12,8 @@ Features:
 * internal connectors: SCL, SDA, 3.3V, GND (SCL and SDA shared with external connector; more gpio available without zigbee module),
 * compatibile with Kradex Z102 enclosure for din rail,
 * support for RS485/MODBUD (need to add ISL83485 or similar - note: RS485 disable I2C and 1Wire),
-* BUS (input/POE) voltage monitoring.
+* BUS (input/POE) voltage monitoring,
+* LEDs: power (green) and status (amber).
 
 Pinout:
 ```
