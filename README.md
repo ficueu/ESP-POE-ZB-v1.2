@@ -2,6 +2,7 @@
 ESP32 POE: ZigBee + BLE gateway
 
 Features:
+* ESPHome compatible,
 * ESP32-S (with U.FL connector) used as BLE receiver, main gateway controller,
 * Ebyte E72-2G4M20S1E (CC2652p with U.FL connector) as ZigBee coordinator,
 * POE 802.3af/802.3at (36-57 VDC) with LAN8720,
@@ -18,6 +19,9 @@ Features:
 
 ### DO NOT POWER ON MODULE WITHOUT ANTENNAS
 
+Example ESPHome yaml file: https://github.com/ficueu/ESP-POE-ZB-v1.2/blob/main/esp-poe-test1.yaml
+
+Enclosure STL files: https://github.com/ficueu/ESP-POE-ZB-v1.2/tree/main/enclosure
 
 Pinout:
 ```
