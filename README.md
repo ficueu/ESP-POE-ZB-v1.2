@@ -34,8 +34,8 @@ dallas:
 
 uart:
   id: modbus
-  tx_pin: 13
-  rx_pin: 14
+  tx_pin: 14
+  rx_pin: 13
   baud_rate: 115200
   stop_bits: 1
 
