@@ -1,25 +1,48 @@
+substitutions:
+  name: "esp-poe-modbus1"
+  friendly_name: ESP32 PoE Gateway v1.2 (CC2652P)
+
 esphome:
-  name: esp-poe-modbus1
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+
+  project:
+    name: "ficueu.esp-poe-modbus-1"
+    version: "1.2"
+
+  on_boot:
+      priority: 800.0
+      then:
+        - output.turn_off: zbBSL
+        - output.turn_off: zbRST
 
 esp32:
   board: esp32dev
   framework:
-    type: arduino
+    type: esp-idf
+
+dashboard_import:
+  package_import_url: github://ficueu/ESP-POE-ZB-v1.2/esp-poe-modbus1.yaml@main
+  import_full_config: true
 
 # Enable logging
 logger:
 
 # Enable Home Assistant API
 api:
+  reboot_timeout: 0s
 
 ota:
-  password: "6d7bb4b04cc7b60150e4214afb416d39"
 
 status_led:
   pin:
     number: 2
     inverted: true
-    
+
+web_server:
+  port: 80
+  version: 1
+
 ethernet:
   type: LAN8720
   mdc_pin: GPIO23
@@ -31,62 +54,6 @@ ethernet:
 
 external_components:
   - source: github://oxan/esphome-stream-server
-  
-switch:
-  - platform: restart
-    name: "Gateway Restart"
-
-  - platform: gpio
-    pin: 32
-    id: zRST_gpio
-    inverted: yes
-    restore_mode: ALWAYS_OFF
-  - platform: template
-    name: "Zigbee RST"
-    icon: mdi:toggle-switch
-    id: zRST
-    turn_on_action:
-      - switch.turn_on: zRST_gpio
-      - delay: 15ms
-      - switch.turn_off: zRST_gpio
-      
-  - platform: gpio
-    pin: 33
-    name: "Zigbee BSL"
-    icon: mdi:toggle-switch
-    id: zBSL
-    inverted: yes
-    restore_mode: ALWAYS_OFF
-    internal: true
-    
-  - platform: template
-    name: "Firmware Update"
-    icon: mdi:cellphone-arrow-down
-    turn_on_action:
-      - script.execute: fw_update_mode
-    turn_off_action:
-      - switch.toggle: zRST
-
-#Update CC2652P/CC2652RB Firmware
-script:
-  - id: fw_update_mode
-    then:
-      - switch.turn_on: zBSL
-      - delay: 1s
-      - switch.turn_on: zRST_gpio
-      - delay: 1s
-      - switch.turn_off: zRST_gpio
-      - logger.log: "Delaying ~10 seconds for TI chip to be ready"
-      - delay: 10s
-      - switch.turn_off: zBSL
-      - logger.log: "Update with cc2538-bsl tool now!"
-      - logger.log: "Usage: cc2538-bsl.py -p socket://ip_or_hostname:6638 -evw firmware.hex"
-
-
-#Serial Bridge Settings,uncomment #port to change default 6638 TCP port
-stream_server:
-  uart_id: uart_bus
-  port: 1234
 
 sensor:
   - platform: adc
@@ -95,12 +62,56 @@ sensor:
     pin: GPIO35
     name: "Bus Voltage"
     update_interval: 60s
+
+  - platform: uptime
+    name: GW uptime
+
+button:
+  - platform: restart
+    name: "Gateway restart"
+
+  - platform: template
+    name: "ZigBee force update"
+    on_press:
+      - output.turn_on: zbBSL
+      - delay: 100ms
+      - output.turn_on: zbRST
+      - delay: 100ms 
+      - output.turn_off: zbRST
+      - delay: 100ms
+      - output.turn_off: zbBSL
+      - delay: 100ms
+      - logger.log: "Done. Please update FW now."
+
+  - platform: output
+    name: "ZigBee reset"
+    output: zbRST
+    id: btnzbRST
+    duration: 1s
+
+output:
+  - platform: gpio
+    pin: 32
+    id: zbRST
+    inverted: yes
+
+  - platform: gpio
+    pin: 33
+    id: zbBSL
+    inverted: yes
+
+#Serial Bridge Settings,uncomment #port to change default 6638 TCP port
+stream_server:
+  uart_id: uart_bus
+  port: 1234
+
 #UART Settings
 uart:
   - id: uart_bus
     rx_pin: GPIO4
     tx_pin: GPIO5
     baud_rate: 115200
+    
   - id: uart_modbus
     tx_pin: GPIO14
     rx_pin: GPIO13
